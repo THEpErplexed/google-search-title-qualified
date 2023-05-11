@@ -1,15 +1,15 @@
 import { replaceLinkTitles } from "./title";
 
 /**
- * CSSセレクタで気をつけていてもどうしてもGoogleのwebキャッシュなど不要なURLが集まってしまうのでフィルタリングをかけます。
+ * Even if you are careful with CSS selectors, unnecessary URLs such as Google's web cache will inevitably gather, so filter them.
  */
 function isValidURL(el: Element): boolean {
   const href = el.getAttribute("href");
   if (href == null) {
     return false;
   }
-  // 文字列をURLにしたり戻したりして無駄な気がしますが、
-  // 要素の書き換えのためにElement自体を渡さないといけない場面が多すぎるので仕方がない。
+  // I feel like it's useless to convert a string to a URL and return it,
+  // There are too many situations where you have to pass the Element itself to rewrite the element, so it can't be helped.
   const url = new URL(href);
   if (url.hostname === "webcache.googleusercontent.com") {
     return false;
@@ -18,8 +18,8 @@ function isValidURL(el: Element): boolean {
 }
 
 /**
- * 置き換える対象の検索結果要素一覧を取得します。
- * Googleの仕様変更に一番左右されそうな部分。
+ * Get the list of search result elements to replace.
+ * The part that is most likely to be influenced by Google's specification change.
  */
 function selectLinkElements(el: Element): Element[] {
   return Array.from(
@@ -27,17 +27,17 @@ function selectLinkElements(el: Element): Element[] {
   ).filter(isValidURL);
 }
 
-/** エントリーポイント。 */
+/** Entry point. */
 async function main(el: Element): Promise<void[]> {
   return replaceLinkTitles(selectLinkElements(el));
 }
 
-// エントリーポイントを実行します。
+// Execute the entry point.
 main(document.documentElement).catch((e) => {
   throw e;
 });
 
-// weAutoPagerizeに対応します。
+// Corresponds to weAutoPagerize.
 document.addEventListener("AutoPagerize_DOMNodeInserted", (event) => {
   if (!(event.target instanceof Element)) {
     throw new Error(
